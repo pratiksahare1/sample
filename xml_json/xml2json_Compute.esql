@@ -1,0 +1,15 @@
+
+
+	CREATE COMPUTE MODULE xml2json_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		SET OutputRoot.Properties = InputRoot.Properties;
+		DECLARE inref REFERENCE TO InputRoot.XMLNSC.catalog;
+		
+		CREATE NEXTSIBLING OF OutputRoot.Properties DOMAIN 'MQRFH2';
+		SET OutputRoot.MQRFH2.Data = InputRoot.XMLNSC.catalog;
+		
+		RETURN TRUE;
+		END;
+END MODULE;

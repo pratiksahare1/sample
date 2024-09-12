@@ -1,0 +1,31 @@
+
+CREATE COMPUTE MODULE mqResponse_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CREATE LASTCHILD OF OutputRoot DOMAIN('JSON');
+		CREATE FIELD OutputRoot.JSON.Data;
+		DECLARE outref REFERENCE TO OutputRoot.JSON.Data;
+		DECLARE inref REFERENCE TO InputRoot.MQRFH2.fields;
+		
+		DECLARE STDDATE TIMESTAMP CAST(inref.publish_date AS DATE FORMAT 'yyyy-MM-dd');
+		DECLARE OUTDATEFORMAT CHARACTER 'MM-dd-yyyy';
+		DECLARE OUTDATE CHARACTER CAST (STDDATE AS CHARACTER FORMAT OUTDATEFORMAT);
+		
+		
+		IF inref.bookid IN ('bk101', 'bk102') THEN
+			SET outref.catalog.book.author = inref.author;
+			SET outref.catalog.book.title = inref.title;
+			SET outref.catalog.book.genre = inref.genre;
+			SET outref.catalog.book.price = inref.price;
+			SET outref.catalog.book.publish_date = OUTDATE;
+			SET outref.catalog.book.description = inref.description;
+			SET outref.catalog.book._id = inref.bookid;
+			PROPAGATE TO TERMINAL 'out';
+		ELSE
+			SET outref.status= '404';
+			SET outref.description= 'Invalid Document Request';
+			PROPAGATE TO TERMINAL 'out1';
+		END IF;		
+		RETURN TRUE;
+	END;
+END MODULE;
